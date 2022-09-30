@@ -214,6 +214,6 @@ EXIT_SET_IP_FUN:
 
         uci_free_context(uci_ctx);
 
-        return 0;
+        return rc;
 }
 
