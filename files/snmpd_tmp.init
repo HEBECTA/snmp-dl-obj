@@ -7,28 +7,32 @@ CONFIGFILE="/var/run/snmpd.conf"
 _config_write() {
     [ -n "$1" ] || return 0
 
-    echo "$1" >> $CONFIGFILE
+    echo "$1" >> "$CONFIGFILE"
 }
 
 start_service(){
 
-        config_load 'snmp_dl_obj'
+        config_load 'snmpd_tmp'
         config_get enabled snmp_dl_obj_info 'enable' '0'
 
         if [ "$enabled" -eq 1 ]; then
 
                 _config_write "dlmod network /usr/lib/snmpd-mod/network.so"
 
-                procd_add_reload_trigger "snmpd"
-
+                /etc/init.d/snmpd stop
+                /etc/init.d/snmpd start
         fi
 }
 
 service_triggers() {
-        procd_add_reload_trigger "snmpd"
+        procd_add_reload_trigger "snmp_tmp"
 }
 
 reload_service() {
         stop
         start
+}
+
+stop_service(){
+        sed -i "/dlmod network \/usr\/lib\/snmpd-mod\/network.so/d" "$CONFIGFILE"
 }
