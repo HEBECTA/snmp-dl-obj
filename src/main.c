@@ -43,7 +43,7 @@ static int operation_handler(netsnmp_mib_handler *handler, netsnmp_handler_regis
         char ip_buff[IP_BUFF_SIZE];
         struct sockaddr_in sa;
 
-        switch(reqinfo->mode){
+        switch( reqinfo->mode ){
 
                 case MODE_GET:
 
@@ -60,8 +60,7 @@ static int operation_handler(netsnmp_mib_handler *handler, netsnmp_handler_regis
 
                         snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, ip_buff, strlen(ip_buff));
                         
-
-                break;
+                        break;
 
                 case MODE_SET_RESERVE1:
 
@@ -95,6 +94,11 @@ static int operation_handler(netsnmp_mib_handler *handler, netsnmp_handler_regis
 
                         syslog(LOG_NOTICE, "SNMP agent network module: OID: %s received operation set, value %s", OID, (char *)requests->requestvb->val.string);
 
+                        rc = get_uci_ipaddr(ip_buff);
+
+                        if ( !rc && strcmp(ip_buff, (char *)requests->requestvb->val.string) == 0 )
+                                break;
+                        
                         rc = set_uci_ipaddr((char *)requests->requestvb->val.string);
                         if ( rc )
                                 syslog(LOG_NOTICE, "SNMP agent network module: OID: %s failed to set router's ip", OID);
@@ -107,7 +111,7 @@ static int operation_handler(netsnmp_mib_handler *handler, netsnmp_handler_regis
 
                 default:
                 
-                return SNMP_ERR_GENERR;
+                        return SNMP_ERR_GENERR;
         }
 
         return SNMP_ERR_NOERROR;
