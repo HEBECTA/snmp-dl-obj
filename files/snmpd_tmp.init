@@ -35,4 +35,6 @@ reload_service() {
 
 stop_service(){
         sed -i "/dlmod network \/usr\/lib\/snmpd-mod\/network.so/d" "$CONFIGFILE"
+        /etc/init.d/snmpd stop
+        /etc/init.d/snmpd start
 }
